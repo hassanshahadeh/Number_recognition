@@ -54,7 +54,7 @@ void MainWindow::on_HOG_clicked()
 {
     for (int  k= 0;k  < 10; k++) {
 
-        filename=QString("C:\\Qt\\Qt5.1.1\\Tools\\QtCreator\\bin\\Nmber_re\\project_number\\train\\%1").arg(k);
+        filename=QString("path \\%1").arg(k);
         QString p=filename;
       //  QStringList filters("*.jpg");
        // QStringList filters1("*.bmp");
@@ -163,7 +163,7 @@ void MainWindow::on_Test_clicked()
     svm.load("svm_orb.xml");Mat m;
     int i=0;
     for (int ii = 0; ii < 10; ++ii) {
-        filename =QString("C:\\Qt\\Qt5.1.1\\Tools\\QtCreator\\bin\\Nmber_re\\project_number\\test\\%1").arg(ii);
+        filename =QString("path\\%1").arg(ii);
 //        QString p=filename;
 //        QStringList filters("*.jpg");
 //        QDir dir(p);
