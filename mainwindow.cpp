@@ -34,7 +34,6 @@
 QString filename;
 using namespace cv;
 
-
 using namespace std;
 Mat training_labels,hogfeat;
 int  countNu=0;
@@ -54,7 +53,7 @@ void MainWindow::on_HOG_clicked()
 {
     for (int  k= 0;k  < 10; k++) {
 
-        filename=QString("path \\%1").arg(k);
+        filename=QString("C:\\Qt\\Qt5.1.1\\Tools\\QtCreator\\bin\\Nmber_re\\project_number\\train\\%1").arg(k);
         QString p=filename;
       //  QStringList filters("*.jpg");
        // QStringList filters1("*.bmp");
@@ -78,15 +77,15 @@ void MainWindow::on_HOG_clicked()
              try{
             // imshow("hog",ImageInput);
 
-             waitKey(1 )
-                     catch(...){}
+             waitKey(1);
+             }catch(...){}
 
              HOGDescriptor hog;
              vector<float> ders;
              vector<Point> locs;
              hog.blockSize=Size(16,16);
              hog.blockStride=Size(16,16);
-             hog.cellSize=Size(8,8);
+             hog.cellSize=Size(2,2);
              hog.winSize=Size(16,16);
 //             hog.blockSize=Size(16,16);
 //             hog.blockStride=Size(16,16);
@@ -155,6 +154,20 @@ void MainWindow::on_SVM_clicked()
 
 void MainWindow::on_Test_clicked()
 {
+    double result[12][12];
+    ui->tableWidget->setRowCount(11);
+        ui->tableWidget->setColumnCount(11);
+        ui->tableWidget->setHorizontalHeaderLabels(QString("0,1,2,3,4,5,6,7,8,9,result").split(","));
+        ui->tableWidget->setVerticalHeaderLabels(QString("0,1,2,3,4,5,6,7,8,9,result").split(","));
+        double sum=0,right=0;
+        for(int r=0;r<=11;r++)
+                for(int k=0;k<=11;k++)
+                {
+                    result[k][r]=0;
+                    ui->tableWidget->setItem(k,r,new QTableWidgetItem(tr("%1").arg(result[k][r])));
+                    ui->tableWidget->show();
+                }
+
     CvSVMParams params;
     params.svm_type=CvSVM::C_SVC;
     params.kernel_type=CvSVM::C;
@@ -163,7 +176,7 @@ void MainWindow::on_Test_clicked()
     svm.load("svm_orb.xml");Mat m;
     int i=0;
     for (int ii = 0; ii < 10; ++ii) {
-        filename =QString("path\\%1").arg(ii);
+        filename =QString("C:\\Qt\\Qt5.1.1\\Tools\\QtCreator\\bin\\Nmber_re\\project_number\\test\\%1").arg(ii);
 //        QString p=filename;
 //        QStringList filters("*.jpg");
 //        QDir dir(p);
@@ -195,7 +208,7 @@ void MainWindow::on_Test_clicked()
             vector<Point> locs;
             hog.blockSize=Size(16,16);
             hog.blockStride=Size(16,16);
-            hog.cellSize=Size(8,8);
+            hog.cellSize=Size(2,2);
             hog.winSize=Size(16,16);
             hog.compute(ImageInput,ders,Size(0,0),Size(0,0),locs);
             feat.create(1,ders.size(),CV_32FC1);
@@ -205,13 +218,64 @@ void MainWindow::on_Test_clicked()
              i=svm.predict(feat);
 
              cout<<i<<endl;
-             if(i==ii){
-                 countNu++;
-             }
+             sum++;
+            int j=ii+1;
+            int response=i+1;
+                         if(response==j)right++;
+              result[j][response]+=1;
+              result[11][response]+=1;
+              result[j][11]+=1;
+                         ui->tableWidget->setItem(j-1,response-1,new QTableWidgetItem(tr("%1").arg(result[j][response])));
+                         ui->tableWidget->setItem(10,response-1,new QTableWidgetItem(tr("%1").arg(result[response][response]/result[11][response])));
+                         ui->tableWidget->setItem(j-1,10,new QTableWidgetItem(tr("%1").arg(result[j][j]/result[j][11])));
+                          ui->tableWidget->setItem(10,10,new QTableWidgetItem(tr("%1").arg(right/sum)));
+                         ui->tableWidget->resizeColumnsToContents();
+                         ui->tableWidget->resizeRowsToContents();
+                         ui->tableWidget->show();
+
 
         }
 
     }
     cout<< countNu<<endl;
+
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    QFile f("C:\\Qt\\Qt5.1.1\\Tools\\QtCreator\\bin\\build-Nmber_re-Desktop_Qt_5_1_1_MinGW_32bit-Debug\\tabel_1.csv");
+
+       if (f.open(QFile::WriteOnly | QFile::Truncate))
+       {
+           QTextStream data( &f );
+           QStringList strList;
+          ///put column headers
+           strList <<"\" ... \" ";
+           for( int c = 0; c < ui->tableWidget->columnCount(); ++c )
+           {
+               strList <<
+                       "\" " +
+                       ui->tableWidget->horizontalHeaderItem(c)->data(Qt::DisplayRole).toString() +
+                       "\" ";
+           }
+           data << strList.join(",") << "\n";
+
+
+
+           for( int r = 0; r < ui->tableWidget->rowCount(); ++r )
+           {
+               strList.clear();
+               strList <<
+                       "\" " +
+                       ui->tableWidget->horizontalHeaderItem(r)->data(Qt::DisplayRole).toString() +
+                       "\" ";
+               for( int c = 0; c < ui->tableWidget->columnCount(); ++c )
+               {
+                   strList << "\" "+ui->tableWidget->item( r, c )->text()+"\" ";
+               }
+               data << strList.join( "," )+"\n";
+           }
+           f.close();
+       }
 
 }
